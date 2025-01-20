@@ -88,7 +88,6 @@ public class EventEntity {
     }
 
 
-
     public Long getId() {
         return id;
     }

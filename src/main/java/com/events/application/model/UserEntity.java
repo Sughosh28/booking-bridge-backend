@@ -31,6 +31,7 @@ public class UserEntity {
     }
 
     public void setPending_email(String pending_email) {
+
         this.pending_email = pending_email;
     }
     public LocalDateTime getOtp_expiry() {
@@ -38,10 +39,12 @@ public class UserEntity {
     }
 
     public void setOtp_expiry(LocalDateTime otp_expiry) {
+
         this.otp_expiry = otp_expiry;
     }
     public String getRole() {
         return role;
+
     }
 
     public void setRole(String role) {

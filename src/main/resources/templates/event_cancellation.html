@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Event Cancellation</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.cancellation-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.cancellation-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px 40px;
+    max-width: 500px;
+    text-align: center;
+}
+
+.cancellation-card h1 {
+    color: #dc3545; /* Red color for cancellation */
+    margin-bottom: 20px;
+}
+
+.cancellation-card p {
+    color: #333;
+    margin: 10px 0;
+}
+
+.contact-info a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.contact-info a:hover {
+    text-decoration: underline;
+}
+
+.btn-home {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.btn-home:hover {
+    background-color: #0056b3;
+}
+</style>
+</head>
+<body>
+    <div class="cancellation-container">
+        <div class="cancellation-card">
+            <h1>Event Cancelled</h1>
+            <p>We regret to inform you that the event <strong th:text="${eventName}">Event Name</strong> scheduled on <strong th:text="${eventDate}">Event Date</strong> has been cancelled.</p>
+            <p>Please contact us if you have any questions or require a refund.</p>
+            <div class="contact-info">
+                <p>Email: <a href="mailto:support@eventsite.com">sughoshathreya1@gmail.com</a></p>
+                <p>Phone: <a href="tel:+1234567890">6361627605</a></p>
+            </div>
+            <a href="/" class="btn-home">Return to Home</a>
+        </div>
+    </div>
+</body>
+</html>
