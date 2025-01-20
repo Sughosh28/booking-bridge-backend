@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login Success</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.message-box h1 {
+    font-size: 28px;
+    color: #4CAF50;
+    margin-bottom: 10px;
+}
+
+.message-box p {
+    font-size: 16px;
+    color: #333;
+    margin: 10px 0;
+}
+
+.message-box span {
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+.dashboard-btn {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.dashboard-btn:hover {
+    background-color: #45a049;
+    transition: background-color 0.3s;
+}
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="message-box">
+        <h1>Welcome Back!</h1>
+        <p>Login successful for <span th:text="${username}"></span>.</p>
+        <p>We are glad to have you back!</p>
+        <a th:href="@{/dashboard}" class="dashboard-btn">Go to Dashboard</a>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Email Already Exists</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.message-box h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.message-box p {
+    font-size: 16px;
+    color: #666;
+    margin: 10px 0;
+}
+
+.message-box span {
+    font-weight: bold;
+    color: #333;
+}
+
+.login-btn {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.login-btn:hover {
+    background-color: #45a049;
+    transition: background-color 0.3s;
+}
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="message-box">
+        <h1>Email Already Exists</h1>
+        <p>The email <span th:text="${email}"></span> is already registered.</p>
+        <p>Please log in with your email to continue.</p>
+        <a th:href="@{/loginUser}" class="login-btn">Login</a>
+    </div>
+</div>
+</body>
+</html>

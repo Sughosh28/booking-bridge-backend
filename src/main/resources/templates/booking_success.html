@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Successful</title>
+<style>
+    body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f9f1;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.success-container {
+    text-align: center;
+    background-color: #ffffff;
+    padding: 20px 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 90%;
+}
+
+.success-icon {
+    font-size: 4rem;
+    color: #28a745;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: #28a745;
+}
+
+p {
+    margin: 10px 0;
+    font-size: 1.2rem;
+    color: #555;
+}
+
+ul {
+    text-align: left;
+    margin: 20px auto;
+    padding: 0;
+    list-style: none;
+}
+
+ul li {
+    margin: 10px 0;
+    font-size: 1rem;
+}
+
+ul li strong {
+    color: #333;
+}
+
+.btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+</style>
+</head>
+<body>
+<div class="success-container">
+    <div class="success-icon">&#x2714;</div>
+    <h1>Booking Successful!</h1>
+    <p th:text="'Thank you for booking, ' + ${username} + '!'">
+        Thank you for booking, Guest!
+    </p>
+    <p>Your booking details are as follows:</p>
+    <ul>
+        <li><strong>Event Name:</strong> <span th:text="${eventName}">Sample Event</span></li>
+        <li><strong>Booking ID:</strong> <span th:text="${bookingId}">12345</span></li>
+        <li><strong>Event Date:</strong> <span th:text="${eventDate}">01-01-2025</span></li>
+        <li><strong>Event Location:</strong> <span th:text="${location}">01-01-2025</span></li>
+        <li><strong>Event Time:</strong> <span th:text="${eventTime}">6:00 PM</span></li>
+        <li><strong>Number of Tickets:</strong> <span th:text="${noOfTickets}">2</span></li>
+        <li><strong>Total Price:</strong> $<span th:text="${totalPrice}">100</span></li>
+    </ul>
+    <a href="/events" class="btn">Back to Events</a>
+</div>
+</body>
+</html>
