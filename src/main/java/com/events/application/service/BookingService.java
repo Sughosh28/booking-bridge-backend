@@ -2,8 +2,10 @@ package com.events.application.service;
 
 import com.events.application.jwt.JwtService;
 import com.events.application.model.BookingEntity;
+import com.events.application.model.BookingHistoryEntity;
 import com.events.application.model.EventEntity;
 import com.events.application.model.UserEntity;
+import com.events.application.repository.BookingHistoryRepository;
 import com.events.application.repository.BookingRepository;
 import com.events.application.repository.EventRepository;
 import com.events.application.repository.UserRepository;
@@ -14,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -29,6 +32,8 @@ public class BookingService {
     private UserRepository userRepository;
     @Autowired
     private MailService mailService;
+    @Autowired
+    private BookingHistoryRepository bookingHistoryRepository;
 
 
     public ResponseEntity<?> getAllBookings() {
@@ -83,13 +88,25 @@ public class BookingService {
             eventEntity.setCapacity(eventEntity.getCapacity() - bookingEntity.getNo_of_tickets());
             eventRepository.save(eventEntity);
             bookingRepository.save(bookEvent);
-            mailService.sendBookingConfirmationMail(userEntity.getEmail(), eventEntity.getEvent_name(), eventEntity.getEvent_location(), bookEvent.getNo_of_tickets(), bookEvent.getTotal_price(), bookEvent.getBooking_id(), bookEvent.getBooking_date(), bookEvent.getBooking_time());
+            mailService.sendBookingConfirmationMail(userEntity.getEmail(), eventEntity.getEvent_name(), eventEntity.getEvent_location(), bookEvent.getNo_of_tickets(), bookEvent.getTotal_price(), bookEvent.getBooking_id(), eventEntity.getEvent_date(), eventEntity.getEvent_time());
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Booking successful");
             response.put("event_name", eventEntity.getEvent_name());
             response.put("event_date", eventEntity.getEvent_date().toString());
             response.put("event_time", eventEntity.getEvent_time().toString());
             response.put("booking", bookEvent);
+
+            BookingHistoryEntity bookingHistory = new BookingHistoryEntity();
+            bookingHistory.setBookingId(bookEvent.getBooking_id());
+            bookingHistory.setUserId(userEntity.getId());
+            bookingHistory.setEventId(eventEntity.getId());
+            bookingHistory.setEventName(eventEntity.getEvent_name());
+            bookingHistory.setNumberOfTickets(bookEvent.getNo_of_tickets());
+            bookingHistory.setTotalAmount(bookEvent.getTotal_price());
+            bookingHistory.setBookingDate(LocalDateTime.now());
+            bookingHistory.setBookingStatus("Booked");
+            bookingHistory.setCancellationDate(null);
+            bookingHistoryRepository.save(bookingHistory);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             mailService.sendBookingFailureMail(userEntity.getEmail());
@@ -130,27 +147,50 @@ public class BookingService {
         }
     }
 
-    public ResponseEntity<?> cancelBooking(Long bookingId) {
+    public ResponseEntity<?> cancelBooking(Long bookingId, String token) {
+        Long userId = jwtService.extractUserId(token);
+        Optional<UserEntity> eventUser = userRepository.findById(userId);
+        String email = eventUser.get().getEmail();
+
         try {
             Optional<BookingEntity> booking = bookingRepository.findById(bookingId);
             if (booking.isPresent()) {
+                BookingEntity bookingEntity = booking.get();
+                EventEntity event = bookingEntity.getEvent();
+                Integer ticketsBooked = bookingEntity.getNo_of_tickets();
+
+                Optional<BookingHistoryEntity> existingHistory = bookingHistoryRepository.findByBookingId(bookingId);
+                if (existingHistory.isPresent()) {
+                    BookingHistoryEntity history = existingHistory.get();
+                    history.setBookingStatus("Cancelled");
+                    history.setCancellationDate(LocalDateTime.now());
+                    bookingHistoryRepository.save(history);
+                }
+
+                event.setCapacity(event.getCapacity() + ticketsBooked);
+                eventRepository.save(event);
+
+                mailService.sendBookingCancellationMail(email, bookingId);
                 bookingRepository.deleteById(bookingId);
-                return new ResponseEntity<>("Your tickets have been cancelled.", HttpStatus.OK);
+
+                return new ResponseEntity<>("Your tickets have been cancelled successfully.", HttpStatus.OK);
             } else {
                 return new ResponseEntity<>("Booking not found.", HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
             return new ResponseEntity<>("An error occurred while cancelling the booking.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
+
+
+
 
     public ResponseEntity<?> getUserBookingHistory(Long userId) {
        Optional<UserEntity> user= userRepository.findById(userId);
        if(user.isEmpty()){
            return new ResponseEntity<>("User does not exist", HttpStatus.BAD_REQUEST);
        }
-       List<BookingEntity> bookings= bookingRepository.findBookingsByUserId(userId);
+       List<BookingHistoryEntity> bookings= bookingHistoryRepository.findBookingHistoryByUserId(userId);
        if(bookings.isEmpty()){
            return new ResponseEntity<>("No bookings found for this user", HttpStatus.NOT_FOUND);
        }
@@ -213,4 +253,21 @@ public class BookingService {
         return new ResponseEntity<>("Cancellation emails sent successfully to all registered users", HttpStatus.OK);
     }
 
+    public ResponseEntity<?> getTotalBookingsCount() {
+        Long totalBookings = bookingRepository.getTotalBookings();
+        Map<String, Object> response = new HashMap<>();
+        response.put("totalBookings", totalBookings);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> getTotalTicketsBookedOverall() {
+        Long totalTickets = bookingRepository.getTotalTicketsBooked();
+        if (totalTickets == null) {
+            totalTickets = 0L;
+        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("totalTickets", totalTickets);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
 }

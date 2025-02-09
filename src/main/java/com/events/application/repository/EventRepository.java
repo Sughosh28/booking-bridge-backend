@@ -37,5 +37,9 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
     List<EventEntity> searchEvents(@Param("keyword") String keyword);
 
 
+    @Query("SELECT e FROM EventEntity e WHERE e.event_date < CURRENT_DATE ORDER BY e.event_date DESC")
+    List<EventEntity> findRecentEvents();
 
+    @Query("SELECT e FROM EventEntity e WHERE e.event_date > CURRENT_DATE ORDER BY e.event_date ASC")
+    List<EventEntity> findUpcomingEvents();
 }
