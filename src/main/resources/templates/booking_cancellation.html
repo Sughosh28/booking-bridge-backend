@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Booking Cancellation Confirmed</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .confirmation-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .confirmation-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px 40px;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .confirmation-card h1 {
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+
+        .booking-details {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .booking-details p {
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .refund-info {
+            background-color: #e8f4ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .contact-info a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-home {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-home:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="confirmation-container">
+    <div class="confirmation-card">
+        <h1>Booking Successfully Cancelled</h1>
+        <div class="booking-details">
+            <p>Your booking has been cancelled for:</p>
+            <p>Booking ID: <strong th:text="${bookingId}">BK12345</strong></p>
+            <p>Event Name: <strong th:text="${eventName}">Sample Event</strong></p>
+            <p>Date: <strong th:text="${eventDate}">2024-01-01</strong></p>
+            <p>Time: <strong th:text="${eventTime}">19:00</strong></p>
+        </div>
+        <div class="refund-info">
+            <p>Your refund will be processed within 5-7 business days to your original payment method.</p>
+        </div>
+        <div class="contact-info">
+            <p>For any questions about your cancellation:</p>
+            <p>Email: <a href="mailto:sughoshathreya1@gmail.com">sughoshathreya1@gmail.com</a></p>
+            <p>Phone: <a href="tel:6361627605">6361627605</a></p>
+        </div>
+        <a href="/" class="btn-home">Return to Home</a>
+    </div>
+</div>
+</body>
+</html>

@@ -1,7 +1,9 @@
 package com.events.application.service;
 
 import com.events.application.jwt.JwtService;
+import com.events.application.model.BookingEntity;
 import com.events.application.model.UserEntity;
+import com.events.application.repository.BookingRepository;
 import com.events.application.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -19,6 +21,7 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Optional;
 
 @Service
 public class MailService {
@@ -30,6 +33,8 @@ public class MailService {
     private JwtService jwtService;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private BookingRepository bookingRepository;
 
     public void sendWelcomeMail(String email, String username) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
@@ -46,6 +51,7 @@ public class MailService {
     }
 
     public void sendBookingConfirmationMail(String email, String eventName, String location, int noOfTickets, double totalPrice, Long bookingId, LocalDate eventDate, LocalTime eventTime) throws MessagingException {
+        String username=userRepository.findByEmail(email).getUsername();
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setFrom("sughoshathreya1@gmail.com");
@@ -54,6 +60,7 @@ public class MailService {
         helper.setReplyTo("sughoshathreya1@gmail.com");
         Context context = new Context();
         context.setVariable("eventName", eventName);
+        context.setVariable("username", username);
         context.setVariable("noOfTickets", noOfTickets);
         context.setVariable("location", location);
         context.setVariable("totalPrice", totalPrice);
@@ -74,6 +81,28 @@ public class MailService {
         helper.setReplyTo("sughoshathreya1@gmail.com");
         Context context = new Context();
         String htmlContent = templateEngine.process("booking_failure", context);
+        helper.setText(htmlContent, true);
+        mailSender.send(message);
+    }
+
+    public void sendBookingCancellationMail(String email, Long bookingId) throws MessagingException {
+        Optional<BookingEntity> booking = bookingRepository.findById(bookingId);
+        BookingEntity booked=booking.get();
+        LocalDate eventDate=booked.getEvent().getEvent_date();
+        LocalTime eventTime=booked.getEvent().getEvent_time();
+        String eventName=booked.getEvent().getEvent_name();
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setFrom("sughoshathreya1@gmail.com");
+        helper.setSubject("Booking Failure");
+        helper.setTo(email);
+        helper.setReplyTo("sughoshathreya1@gmail.com");
+        Context context = new Context();
+        context.setVariable("bookingId", bookingId);
+        context.setVariable("eventName", eventName);
+        context.setVariable("eventDate", eventDate);
+        context.setVariable("eventTime", eventTime);
+        String htmlContent = templateEngine.process("booking_cancellation", context);
         helper.setText(htmlContent, true);
         mailSender.send(message);
     }

@@ -34,8 +34,13 @@ public class RegistrationAndLoginService {
     private MailService mailService;
 
     public ResponseEntity<?> registerUser(UserEntity user) {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
+            return new ResponseEntity<>("Username already exists", HttpStatus.BAD_REQUEST);
+        }
+        if (userRepository.findByEmail(user.getEmail()) != null) {
+            return new ResponseEntity<>("Email already exists", HttpStatus.BAD_REQUEST);
+        }
         try {
-
             String encodedPassword = passwordEncoder.encode(user.getPassword());
             System.out.println(encodedPassword);
             UserEntity newUser = new UserEntity();

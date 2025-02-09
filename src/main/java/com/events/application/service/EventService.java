@@ -160,4 +160,21 @@ public class EventService {
         return new ResponseEntity<>( eventRepository.findAll(), HttpStatus.OK);
     }
 
+    public ResponseEntity<?> getTotalEvents() {
+        return new ResponseEntity<>(eventRepository.findAll().size(), HttpStatus.OK);
+    }
+
+    public List<EventEntity> getRecentEvents() {
+        List<EventEntity> recentEvents = eventRepository.findRecentEvents();
+        return recentEvents;
+    }
+
+    public ResponseEntity<?> getUpcomingEvents() {
+        List<EventEntity> upcomingEvents = eventRepository.findUpcomingEvents();
+        if(upcomingEvents.isEmpty()) {
+            return new ResponseEntity<>("No upcoming events found", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(upcomingEvents, HttpStatus.OK);
+    }
+
 }

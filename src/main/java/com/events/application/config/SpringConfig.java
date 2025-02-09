@@ -54,26 +54,26 @@ public class SpringConfig implements WebMvcConfigurer {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(registry->{
                     registry.requestMatchers("/","/register","/v3/api-docs/**","/swagger-ui/**", "/login", "/loginUser" ).permitAll();
-                    registry.requestMatchers("/api/events/**").hasRole("ORGANIZER");
+                    registry.requestMatchers("/api/organizer/**").hasRole("ORGANIZER");
                     registry.requestMatchers("/api/bookEvents/**").hasRole("USER");
-
                     registry.requestMatchers("/api/users/**").hasRole("USER");
                     registry.anyRequest().authenticated();
-                      })
+                })
                 .oauth2Login(oauth ->
                         oauth
                                 .loginPage("/login")
                                 .successHandler((request, response, authentication) -> response.sendRedirect("/profile"))
                                 .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService()))
                 )
+                .formLogin(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
-          }
+
+    }
 
     @Bean
     public OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService() {
