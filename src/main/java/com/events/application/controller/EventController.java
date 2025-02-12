@@ -126,6 +126,12 @@ public class EventController {
         return eventService.getUpcomingEvents();
     }
 
-
+    @PostMapping("/push-mail-notification")
+    public ResponseEntity<?> pushMailNotification(@RequestHeader ("Authorization") String token, @RequestParam Long eventId) {
+        if (token == null || !token.startsWith("Bearer")) {
+            throw new RuntimeException("Invalid token");
+        }
+        return eventService.pushMailNotification(eventId);
+    }
 
 }

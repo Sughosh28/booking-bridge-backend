@@ -2,6 +2,7 @@ package com.events.application.service;
 
 import com.events.application.jwt.JwtService;
 import com.events.application.model.BookingEntity;
+import com.events.application.model.EventEntity;
 import com.events.application.model.UserEntity;
 import com.events.application.repository.BookingRepository;
 import com.events.application.repository.UserRepository;
@@ -22,6 +23,7 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -52,7 +54,7 @@ public class MailService {
     }
 
     public void sendBookingConfirmationMail(String email, String eventName, String location, LocalTime checkIn, int noOfTickets, double totalPrice, Long bookingId, LocalDate eventDate, LocalTime eventTime) throws MessagingException {
-        String username=userRepository.findByEmail(email).getUsername();
+        String username = userRepository.findByEmail(email).getUsername();
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setFrom("sughoshathreya1@gmail.com");
@@ -89,10 +91,10 @@ public class MailService {
 
     public void sendBookingCancellationMail(String email, Long bookingId) throws MessagingException {
         Optional<BookingEntity> booking = bookingRepository.findById(bookingId);
-        BookingEntity booked=booking.get();
-        LocalDate eventDate=booked.getEvent().getEvent_date();
-        LocalTime eventTime=booked.getEvent().getEvent_time();
-        String eventName=booked.getEvent().getEvent_name();
+        BookingEntity booked = booking.get();
+        LocalDate eventDate = booked.getEvent().getEvent_date();
+        LocalTime eventTime = booked.getEvent().getEvent_time();
+        String eventName = booked.getEvent().getEvent_name();
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setFrom("sughoshathreya1@gmail.com");
@@ -125,7 +127,7 @@ public class MailService {
     }
 
 
-    public ResponseEntity<?> sendOtp(String token,String email) {
+    public ResponseEntity<?> sendOtp(String token, String email) {
         String username;
         try {
             String authToken = token.replace("Bearer ", "");
@@ -137,7 +139,7 @@ public class MailService {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
-        if(user.getEmail().equals(email)){
+        if (user.getEmail().equals(email)) {
             return new ResponseEntity<>("User already exists with this email", HttpStatus.BAD_REQUEST);
         }
         String otp = String.valueOf(new SecureRandom().nextInt(900000) + 100000);
@@ -171,5 +173,31 @@ public class MailService {
         helper.setText(htmlContent, true);
         mailSender.send(message);
 
+    }
+
+    public void pushNotification(List<String> mails, EventEntity eventEntity) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setFrom("sughoshathreya1@gmail.com");
+            helper.setSubject("Event Alert: " + eventEntity.getEvent_name());
+            helper.setBcc(mails.toArray(new String[0]));
+            helper.setReplyTo("sughoshathreya1@gmail.com");
+
+            Context context = new Context();
+            context.setVariable("eventName", eventEntity.getEvent_name());
+            context.setVariable("location", eventEntity.getEvent_location());
+            context.setVariable("description", eventEntity.getEvent_description());
+            context.setVariable("date", eventEntity.getEvent_date());
+            context.setVariable("time", eventEntity.getEvent_time());
+
+            String htmlContent = templateEngine.process("event_notification", context);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            System.out.println("Failed to send email: " + e.getMessage());
+        }
     }
 }
