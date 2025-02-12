@@ -3,65 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
+    <title>Welcome to Event Management System</title>
 
-<style>
-    body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    color: #333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #1976D2;
+            --text-color: #333;
+            --bg-color: #f5f5f5;
+        }
 
-.welcome-container {
-    text-align: center;
-    background-color: #ffffff;
-    padding: 20px 40px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-h1 {
-    font-size: 2.5rem;
-    color: #555;
-}
+        .welcome-container {
+            background: white;
+            padding: 2.5rem 3rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            animation: fadeIn 0.6s ease-in;
+        }
 
-p {
-    margin-top: 10px;
-    font-size: 1.2rem;
-}
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-.btn {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 1rem;
-    color: #fff;
-    background-color: #007BFF;
-    border: none;
-    border-radius: 5px;
-    text-decoration: none;
-    transition: background-color 0.3s ease;
-}
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+        }
 
-.btn:hover {
-    background-color: #0056b3;
-}
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
 
-</style>
+        .welcome-message {
+            font-size: 1.2rem;
+            color: var(--text-color);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .highlight {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        .btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .footer-text {
+            margin-top: 2rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 <body>
 <div class="welcome-container">
-    <h1>Welcome to Our Application</h1>
-    <p th:text="'Hello, ' + ${username} + '! We are glad to have you here.'">
-        Hello, Guest! We are glad to have you here.
+    <img src="https://your-logo-url.png" alt="Logo" class="logo">
+    <h1>Welcome to BookingBridge</h1>
+    <p class="welcome-message">
+        Hello <span class="highlight" th:text="${username}">Guest</span>!
+        We're excited to have you join our community of event enthusiasts.
     </p>
-    <a href="/dashboard" class="btn">Go to Dashboard</a>
+    <a href="http://localhost:3000/dashboard" class="btn">Explore Events</a>
+    <p class="footer-text">
+        Discover amazing events, book tickets, and create unforgettable memories.
+    </p>
 </div>
 </body>
 </html>

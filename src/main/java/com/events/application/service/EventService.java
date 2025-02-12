@@ -2,6 +2,7 @@ package com.events.application.service;
 
 import com.events.application.model.EventEntity;
 import com.events.application.repository.EventRepository;
+import com.events.application.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,10 @@ public class EventService {
     private EventRepository eventRepository;
     @Autowired
     private BookingService bookingService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private MailService mailService;
 
     public ResponseEntity<?> createEvent(String token, EventEntity events) {
         if(token==null){
@@ -181,4 +186,12 @@ public class EventService {
         return new ResponseEntity<>(upcomingEvents, HttpStatus.OK);
     }
 
+    public ResponseEntity<?> pushMailNotification(Long eventId) {
+        List<String> mails= userRepository.findAllMails();
+        EventEntity eventEntity=eventRepository.findById(eventId).orElseThrow(() ->
+                new RuntimeException("Event does not exist"));;
+        mailService.pushNotification(mails, eventEntity);
+        return new ResponseEntity<>("Done", HttpStatus.OK);
+
+    }
 }

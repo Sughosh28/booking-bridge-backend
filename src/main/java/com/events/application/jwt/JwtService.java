@@ -29,7 +29,7 @@ public class JwtService {
     public String generateToken(UserDetails userDetails) {
         Map<String, String> claims = new HashMap<>();
         String email = ((EventUserDetails) userDetails).getEmail();
-        Long userId=userRepo.findIdByUsername(userDetails.getUsername());
+        Long userId = userRepo.findIdByUsername(userDetails.getUsername());
 
         claims.put("iss", "https://sughosh-portfolio.vercel.app/");
         claims.put("email", email);
@@ -54,15 +54,15 @@ public class JwtService {
         return claims.getSubject();
     }
 
-    public Long extractUserId(String jwt){
-        Claims claims= getClaims(jwt);
+    public Long extractUserId(String jwt) {
+        Claims claims = getClaims(jwt);
         String userIdClaim = claims.get("userId", String.class);
         return Long.parseLong(userIdClaim);
     }
 
     public String extractEmail(String jwt) {
         Claims claims = getClaims(jwt);
-        String email= claims.get("email", String.class);
+        String email = claims.get("email", String.class);
         System.out.println(email);
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("Email not found in JWT claims");
@@ -73,7 +73,7 @@ public class JwtService {
 
 
     private Claims getClaims(String jwt) {
-        Claims claims= Jwts.parser()
+        Claims claims = Jwts.parser()
                 .verifyWith(generateKey())
                 .build()
                 .parseSignedClaims(jwt)
@@ -82,7 +82,7 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String jwt) {
-        Claims claims=getClaims(jwt);
+        Claims claims = getClaims(jwt);
         return claims.getExpiration().after(Date.from(Instant.now()));
     }
 
