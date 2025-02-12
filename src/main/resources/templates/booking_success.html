@@ -83,7 +83,7 @@ ul li strong {
 <div class="success-container">
     <div class="success-icon">&#x2714;</div>
     <h1>Booking Successful!</h1>
-    <p th:text="'Thank you for booking, ' + ${username} + '!'">
+    <p th:text="'Thank you for booking ' + ${eventName} + ', ' + ${username} + '!'"></p>
         Thank you for booking, Guest!
     </p>
     <p>Your booking details are as follows:</p>
@@ -93,6 +93,7 @@ ul li strong {
         <li><strong>Event Date:</strong> <span th:text="${eventDate}">01-01-2025</span></li>
         <li><strong>Event Location:</strong> <span th:text="${location}">01-01-2025</span></li>
         <li><strong>Event Time:</strong> <span th:text="${eventTime}">6:00 PM</span></li>
+        <li><strong>Check-In Time:</strong> <span th:text="${checkInTime}">6:00 PM</span></li>
         <li><strong>Number of Tickets:</strong> <span th:text="${noOfTickets}">2</span></li>
         <li><strong>Total Price:</strong> $<span th:text="${totalPrice}">100</span></li>
     </ul>

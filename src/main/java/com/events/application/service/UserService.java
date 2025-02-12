@@ -4,6 +4,7 @@ import com.events.application.jwt.EventUserDetailService;
 import com.events.application.jwt.JwtService;
 import com.events.application.model.UserEntity;
 import com.events.application.repository.UserRepository;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,25 +23,24 @@ public class UserService {
     @Autowired
     private JwtService jwtService;
 
-    public ResponseEntity<?> validateOtpAndUpdateEmail(String token, String otp) {
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
-        }
-            String authToken = token.replace("Bearer ", "");
+    public ResponseEntity<?> validateOtpAndUpdateEmail(String token, String otp) throws MessagingException {
 
         String username;
         try {
-            username = jwtService.extractUsername(authToken);
+            username = jwtService.extractUsername(token);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token.");
         }
 
         UserEntity user = userRepository.findByUsername(username);
+        System.out.println(user.getOtp());
+
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
 
         if (user.getOtp() == null || !user.getOtp().equals(otp)) {
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid OTP.");
         }
 
@@ -57,6 +57,7 @@ public class UserService {
         user.setPending_email(null);
         user.setOtp(null);
         user.setOtp_expiry(null);
+        mailService.sendMailUpdated(newEmail, username);
         userRepository.save(user);
 
         return ResponseEntity.ok("Email updated successfully.");

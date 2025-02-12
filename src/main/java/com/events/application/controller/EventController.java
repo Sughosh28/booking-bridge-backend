@@ -20,6 +20,15 @@ public class EventController {
     @Autowired
     private BookingService bookingService;
 
+    @GetMapping("/get-all-events")
+    public ResponseEntity<?> getEvents(@RequestHeader("Authorization") String token) {
+        if(token==null || !token.startsWith("Bearer ")){
+            return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
+        }
+        String authToken= token.substring(7);
+        return eventService.getEvents(authToken);
+    }
+
     @PostMapping("/createEvent")
     public ResponseEntity<?> createEvent(@RequestHeader("Authorization") String token,
                                          @RequestBody EventEntity events) {
@@ -76,26 +85,6 @@ public class EventController {
         return bookingService.getTotalTicketsBooked(eventId);
     }
 
-    @GetMapping("/events/{eventId}/check-availability")
-    public ResponseEntity<?> checkTicketAvailability(
-            @PathVariable Long eventId,
-            @RequestParam Integer requestedTickets,
-            @RequestHeader("Authorization") String token) {
-        if(token==null || !token.startsWith("Bearer")){
-            throw new RuntimeException("Invalid token");
-        }
-        return bookingService.checkTicketAvailability(eventId, requestedTickets);
-    }
-
-    @PostMapping("/events/{eventId}/send-cancellation-mail")
-    public ResponseEntity<?> sendEventCancellationMailToAllRegisteredUsers(@PathVariable Long eventId, @RequestHeader("Authorization") String token) {
-        if (token == null || !token.startsWith("Bearer")) {
-            throw new RuntimeException("Invalid token");
-        }
-
-        return bookingService.sendEventCancellationMailToAllRegisteredUsers(eventId);
-    }
-
     @GetMapping("/totalEvents")
     public ResponseEntity<?> getTotalEvents(@RequestHeader ("Authorization") String token) {
         if(token==null || !token.startsWith("Bearer")){
@@ -120,6 +109,13 @@ public class EventController {
             throw new RuntimeException("Invalid token");
         }
         return bookingService.getTotalTicketsBookedOverall();
+    }
+    @GetMapping("/events/{eventId}")
+    public ResponseEntity<?> getEventById(@PathVariable Long eventId, @RequestHeader("Authorization") String token) {
+        if(token==null || !token.startsWith("Bearer")){
+            throw new RuntimeException("Invalid token");
+        }
+        return bookingService.getEventById(eventId);
     }
 
     @GetMapping("/upcoming-events")

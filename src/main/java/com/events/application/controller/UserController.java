@@ -1,9 +1,11 @@
 package com.events.application.controller;
 
 import com.events.application.dto.EmailDTO;
+import com.events.application.dto.OtpDTO;
 import com.events.application.jwt.JwtService;
 import com.events.application.service.MailService;
 import com.events.application.service.UserService;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,11 +31,11 @@ public class UserController {
     }
 
     @PutMapping("/updateEmail")
-    public ResponseEntity<?> updateUserEmail(@RequestHeader("Authorization") String token, @RequestBody String otp) {
+    public ResponseEntity<?> updateUserEmail(@RequestHeader("Authorization") String token, @RequestBody OtpDTO otp) throws MessagingException {
         if(token==null || !token.startsWith("Bearer")){
             return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
         }
         String authToken = token.replace("Bearer ", "");
-        return userService.validateOtpAndUpdateEmail(authToken,otp);
+        return userService.validateOtpAndUpdateEmail(authToken,otp.getOtp());
     }
 }
