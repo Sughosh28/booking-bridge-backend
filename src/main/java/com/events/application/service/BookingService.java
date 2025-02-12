@@ -88,7 +88,7 @@ public class BookingService {
             eventEntity.setCapacity(eventEntity.getCapacity() - bookingEntity.getNo_of_tickets());
             eventRepository.save(eventEntity);
             bookingRepository.save(bookEvent);
-            mailService.sendBookingConfirmationMail(userEntity.getEmail(), eventEntity.getEvent_name(), eventEntity.getEvent_location(), bookEvent.getNo_of_tickets(), bookEvent.getTotal_price(), bookEvent.getBooking_id(), eventEntity.getEvent_date(), eventEntity.getEvent_time());
+            mailService.sendBookingConfirmationMail(userEntity.getEmail(), eventEntity.getEvent_name(), eventEntity.getEvent_location(),eventEntity.getEvent_checkIn_time(), bookEvent.getNo_of_tickets(), bookEvent.getTotal_price(), bookEvent.getBooking_id(), eventEntity.getEvent_date(), eventEntity.getEvent_time());
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Booking successful");
             response.put("event_name", eventEntity.getEvent_name());
@@ -133,6 +133,9 @@ public class BookingService {
 
     public ResponseEntity<?> getTotalTicketsBooked(Long eventId) {
         try {
+            EventEntity event = eventRepository.findById(eventId)
+                    .orElseThrow(() -> new IllegalArgumentException("Event not found with ID: " + eventId));
+
             Long totalTickets = bookingRepository.getTotalTicketsBookedForEvent(eventId);
 
             if (totalTickets == null) {
@@ -140,7 +143,9 @@ public class BookingService {
             }
             Map<String, Object> response = new HashMap<>();
             response.put("eventId", eventId);
+            response.put("event_name", event.getEvent_name());
             response.put("totalTickets", totalTickets);
+            response.put("remainingTickets", event.getCapacity());
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Some error occurred", HttpStatus.OK);
@@ -198,36 +203,27 @@ public class BookingService {
     }
 
 
-    public ResponseEntity<?> checkTicketAvailability(Long eventId, Integer requestedTickets) {
+    public ResponseEntity<?> getEventById(Long eventId) {
+        if (eventId == null || eventId <= 0) {
+            return ResponseEntity.badRequest().body("Invalid event ID");
+        }
+
         try {
             EventEntity event = eventRepository.findById(eventId)
-                    .orElseThrow(() -> new RuntimeException("Event not found"));
+                    .orElseThrow(() -> new RuntimeException("Event not found with ID: " + eventId));
 
-            Long totalBookedTickets = bookingRepository.getTotalTicketsBookedForEvent(eventId);
 
-            Integer availableTickets = (int) (event.getCapacity() - totalBookedTickets);
+            return ResponseEntity.ok(event);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("eventId", eventId);
-            response.put("eventName", event.getEvent_name());
-            response.put("totalCapacity", event.getCapacity());
-            response.put("bookedTickets", totalBookedTickets);
-            response.put("availableTickets", availableTickets);
-            response.put("requestedTickets", requestedTickets);
-            response.put("isAvailable", availableTickets >= requestedTickets);
-
-            if (availableTickets >= requestedTickets) {
-                response.put("message", "Tickets are available for booking");
-            } else {
-                response.put("message", "Not enough tickets available");
-            }
-            return ResponseEntity.ok(response);
-
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error checking ticket availability: " + e.getMessage());
+                    .body("Error retrieving event details: " + e.getMessage());
         }
     }
+
 
     public ResponseEntity<?> sendEventCancellationMailToAllRegisteredUsers(Long eventId) {
         List<BookingEntity> bookings = bookingRepository.findAllByEventId(eventId);
@@ -270,4 +266,6 @@ public class BookingService {
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
+
+
 }

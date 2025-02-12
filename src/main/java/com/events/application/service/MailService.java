@@ -8,6 +8,7 @@ import com.events.application.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -50,7 +51,7 @@ public class MailService {
         mailSender.send(message);
     }
 
-    public void sendBookingConfirmationMail(String email, String eventName, String location, int noOfTickets, double totalPrice, Long bookingId, LocalDate eventDate, LocalTime eventTime) throws MessagingException {
+    public void sendBookingConfirmationMail(String email, String eventName, String location, LocalTime checkIn, int noOfTickets, double totalPrice, Long bookingId, LocalDate eventDate, LocalTime eventTime) throws MessagingException {
         String username=userRepository.findByEmail(email).getUsername();
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -67,6 +68,7 @@ public class MailService {
         context.setVariable("bookingId", bookingId);
         context.setVariable("eventDate", eventDate);
         context.setVariable("eventTime", eventTime);
+        context.setVariable("checkInTime", checkIn);
         String htmlContent = templateEngine.process("booking_success", context);
         helper.setText(htmlContent, true);
         mailSender.send(message);
@@ -155,4 +157,19 @@ public class MailService {
     }
 
 
+    public void sendMailUpdated(String newEmail, String username) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setFrom("sughoshathreya1@gmail.com");
+        helper.setSubject("Email Update Confirmation");
+        helper.setTo(newEmail);
+        helper.setReplyTo("sughoshathreya1@gmail.com");
+        Context context = new Context();
+        context.setVariable("email", newEmail);
+        context.setVariable("username", username);
+        String htmlContent = templateEngine.process("email_update.html", context);
+        helper.setText(htmlContent, true);
+        mailSender.send(message);
+
+    }
 }

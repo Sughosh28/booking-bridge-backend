@@ -17,10 +17,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -63,40 +59,10 @@ public class SpringConfig implements WebMvcConfigurer {
                     registry.requestMatchers("/api/users/**").hasRole("USER");
                     registry.anyRequest().authenticated();
                 })
-                .oauth2Login(oauth ->
-                        oauth
-                                .loginPage("/login")
-                                .successHandler((request, response, authentication) -> response.sendRedirect("/profile"))
-                                .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService()))
-                )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
 
-    }
-
-    @Bean
-    public OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService() {
-        return userRequest -> {
-            OAuth2User oAuth2User = new DefaultOAuth2UserService().loadUser(userRequest);
-
-            String email = oAuth2User.getAttribute("email");
-            String name = oAuth2User.getAttribute("name");
-
-            UserEntity user = userRepository.findByEmail(email);
-            if (user == null) {
-                user = new UserEntity();
-                user.setEmail(email);
-                user.setUsername(name);
-                user.setRole("USER");
-
-                System.out.println("Saving user: " + user);
-                userRepository.save(user);
-            } else {
-                System.out.println("User already exists: " + user);
-            }
-            return oAuth2User;
-        };
     }
 
 

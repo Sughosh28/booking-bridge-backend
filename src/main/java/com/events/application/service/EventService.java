@@ -16,6 +16,8 @@ import java.util.Optional;
 public class EventService {
     @Autowired
     private EventRepository eventRepository;
+    @Autowired
+    private BookingService bookingService;
 
     public ResponseEntity<?> createEvent(String token, EventEntity events) {
         if(token==null){
@@ -144,7 +146,9 @@ public class EventService {
             return new ResponseEntity<>("Event not found", HttpStatus.BAD_REQUEST);
         }
         try {
+
             eventRepository.deleteById(id);
+            bookingService.sendEventCancellationMailToAllRegisteredUsers(id);
             return new ResponseEntity<>("Event deleted successfully", HttpStatus.OK);
         }
         catch(Exception e){
