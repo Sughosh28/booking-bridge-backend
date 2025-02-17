@@ -8,11 +8,11 @@
 		<version>3.4.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.blog</groupId>
-	<artifactId>blogApplication</artifactId>
+	<groupId>com.events</groupId>
+	<artifactId>eventApplication</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>blogApplication</name>
-	<description>Demo project for Spring Boot</description>
+	<name>eventApplication</name>
+	<description>Demo project for Event Booking Application</description>
 	<url/>
 	<licenses>
 		<license/>

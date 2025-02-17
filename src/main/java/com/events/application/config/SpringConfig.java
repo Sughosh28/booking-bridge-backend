@@ -33,10 +33,7 @@ public class SpringConfig implements WebMvcConfigurer {
     private EventUserDetailService eventUserDetailService;
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserService userService;
+
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
