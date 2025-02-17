@@ -1,12 +1,14 @@
 package com.events.application.service;
 
 import com.events.application.model.EventEntity;
+import com.events.application.repository.BookingRepository;
 import com.events.application.repository.EventRepository;
 import com.events.application.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -23,6 +25,8 @@ public class EventService {
     private UserRepository userRepository;
     @Autowired
     private MailService mailService;
+    @Autowired
+    private BookingRepository bookingRepository;
 
     public ResponseEntity<?> createEvent(String token, EventEntity events) {
         if(token==null){
@@ -142,18 +146,23 @@ public class EventService {
         }
     }
 
-    public ResponseEntity<?> deleteEvent(String token, Long id) {
+
+    @Transactional
+    public ResponseEntity<?> deleteEvent(String token, Long event_id) {
         if(token==null){
             return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
         }
-        Optional<EventEntity> eventEntity= eventRepository.findById(id);
+        Optional<EventEntity> eventEntity= eventRepository.findById(event_id);
         if(eventEntity.isEmpty()){
             return new ResponseEntity<>("Event not found", HttpStatus.BAD_REQUEST);
         }
         try {
+            bookingService.sendEventCancellationMailToAllRegisteredUsers(event_id);
+            bookingRepository.deleteByEventId(event_id);
 
-            eventRepository.deleteById(id);
-            bookingService.sendEventCancellationMailToAllRegisteredUsers(id);
+
+            eventRepository.deleteById(event_id);
+            System.out.println("Mail sent successfully");
             return new ResponseEntity<>("Event deleted successfully", HttpStatus.OK);
         }
         catch(Exception e){

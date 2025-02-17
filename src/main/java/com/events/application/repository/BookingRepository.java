@@ -2,6 +2,7 @@ package com.events.application.repository;
 
 import com.events.application.model.BookingEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -28,4 +29,8 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
 
     @Query("SELECT SUM(b.no_of_tickets) FROM BookingEntity b")
     Long getTotalTicketsBooked();
+
+    @Modifying
+    @Query("DELETE FROM BookingEntity b WHERE b.event.id = :eventId")
+    void deleteByEventId(@Param("eventId") Long eventId);
 }

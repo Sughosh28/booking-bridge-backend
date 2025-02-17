@@ -238,6 +238,9 @@ public class BookingService {
                 UserEntity user = booking.getUser();
                 EventEntity event = booking.getEvent();
                 mailService.sendEventCancellationMail(user.getEmail(), event.getEvent_name(), event.getEvent_date());
+                System.out.println("Email sent to: " + user.getEmail());
+                System.out.println("Email name: " + event.getEvent_name());
+                System.out.println("Event date: " + event.getEvent_date());
             } catch (MessagingException e) {
                 failedEmails.add(booking.getUser().getEmail());
             }
