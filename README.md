@@ -73,12 +73,14 @@ http://localhost:8089/api/
 
 You can use **Postman** or any REST client to interact with the API.
 
-## Contributing
-Feel free to submit issues or contribute by creating pull requests.
 
 Frontend Setup
 ## Either way you have to use the https://github.com/Sughosh28/booking-bridge-frontend repository to run the frontend
 
 npm run dev
+
+
+## Contributing
+Feel free to submit issues or contribute by creating pull requests.
 
 
