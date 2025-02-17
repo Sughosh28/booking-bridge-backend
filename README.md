@@ -19,6 +19,9 @@ If you haven't already built the Docker image, you can do so with the following 
 
 docker build -t event-booking .
 
+Run the Docker Container
+After the image is built, run the container using the command below:
+
 docker run -p 8089:8089 event-booking
 
 
