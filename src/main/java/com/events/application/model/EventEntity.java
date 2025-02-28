@@ -31,8 +31,9 @@ public class EventEntity {
     private String organizer_contact_details;
     private String category;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "event", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = false)
     private List<BookingEntity> bookings;
+
 
     public String getOrganizer_name() {
         return organizer_name;
