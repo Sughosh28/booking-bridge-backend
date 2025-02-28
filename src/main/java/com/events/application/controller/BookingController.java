@@ -36,9 +36,6 @@ public class BookingController {
         return bookingService.getAllBookings();
     }
 
-
-
-
     @DeleteMapping("/bookings/{booking_id}/cancel")
     public ResponseEntity<?> cancelBooking(@PathVariable Long booking_id, @RequestHeader("Authorization") String token) {
 
