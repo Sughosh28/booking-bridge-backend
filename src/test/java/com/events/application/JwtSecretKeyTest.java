@@ -11,6 +11,6 @@ public class JwtSecretKeyTest {
     public void generateSecretKey(){
         SecretKey secretKey = Jwts.SIG.HS512.key().build();
         String decodedKey= DatatypeConverter.printHexBinary(secretKey.getEncoded());
-        System.out.println(decodedKey);
+
     }
 }

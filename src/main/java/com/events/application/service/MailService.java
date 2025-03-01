@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -39,6 +40,7 @@ public class MailService {
     @Autowired
     private BookingRepository bookingRepository;
 
+    @Async
     public void sendWelcomeMail(String email, String username) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -52,6 +54,8 @@ public class MailService {
         helper.setText(htmlContent, true);
         mailSender.send(message);
     }
+
+    @Async
 
     public void sendBookingConfirmationMail(String email, String eventName, String location, LocalTime checkIn, int noOfTickets, double totalPrice, Long bookingId, LocalDate eventDate, LocalTime eventTime) throws MessagingException {
         String username = userRepository.findByEmail(email).getUsername();
@@ -76,6 +80,8 @@ public class MailService {
         mailSender.send(message);
     }
 
+    @Async
+
     public void sendBookingFailureMail(String email) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -88,6 +94,8 @@ public class MailService {
         helper.setText(htmlContent, true);
         mailSender.send(message);
     }
+
+    @Async
 
     public void sendBookingCancellationMail(String email, Long bookingId) throws MessagingException {
         Optional<BookingEntity> booking = bookingRepository.findById(bookingId);
@@ -111,6 +119,8 @@ public class MailService {
         mailSender.send(message);
     }
 
+    @Async
+
     public void sendEventCancellationMail(String email, String eventName, LocalDate eventDate) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -125,6 +135,7 @@ public class MailService {
         helper.setText(htmlContent, true);
         mailSender.send(message);
     }
+
 
 
     public ResponseEntity<?> sendOtp(String token, String email) {
@@ -159,6 +170,8 @@ public class MailService {
     }
 
 
+    @Async
+
     public void sendMailUpdated(String newEmail, String username) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -174,6 +187,8 @@ public class MailService {
         mailSender.send(message);
 
     }
+
+    @Async
 
     public void pushNotification(List<String> mails, EventEntity eventEntity) {
         try {
@@ -197,7 +212,7 @@ public class MailService {
 
             mailSender.send(message);
         } catch (MessagingException e) {
-            System.out.println("Failed to send email: " + e.getMessage());
+            throw new RuntimeException("Failed to send notification!");
         }
     }
 }

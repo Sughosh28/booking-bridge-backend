@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "booking_history")
+
 public class BookingHistoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

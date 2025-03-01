@@ -11,6 +11,9 @@ import com.events.application.repository.EventRepository;
 import com.events.application.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -36,23 +39,26 @@ public class BookingService {
     private BookingHistoryRepository bookingHistoryRepository;
 
 
+    @Cacheable(value = "allBookings") // Caches the result
     public ResponseEntity<?> getAllBookings() {
-       List<BookingEntity> bookings= bookingRepository.findAll();
-       if(bookings.isEmpty()){
-           return new ResponseEntity<>("No bookings found", HttpStatus.NOT_FOUND);
-       }
-       return new ResponseEntity<>(bookings, HttpStatus.OK);
+        List<BookingEntity> bookings = bookingRepository.findAll();
+        if (bookings.isEmpty()) {
+            return new ResponseEntity<>("No bookings found", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(bookings, HttpStatus.OK);
     }
 
 
+    @Cacheable(value = "eventBookings", key = "#eventId") // Cache by Event ID
     public ResponseEntity<?> getBookingsByEventId(Long eventId) {
-        Optional<BookingEntity> bookings= bookingRepository.findByEventId(eventId);
-        if(bookings.isEmpty()){
+        Optional<BookingEntity> bookings = bookingRepository.findByEventId(eventId);
+        if (bookings.isEmpty()) {
             return new ResponseEntity<>("No bookings found for this event.", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(bookings.get(), HttpStatus.OK);
     }
 
+    @CachePut(value = "allBookings") // Update cache when booking is added
     public ResponseEntity<?> bookTicket(Long event_id, BookingEntity bookingEntity, String authToken) throws MessagingException {
         String username;
         Long userId;
@@ -88,7 +94,7 @@ public class BookingService {
             eventEntity.setCapacity(eventEntity.getCapacity() - bookingEntity.getNo_of_tickets());
             eventRepository.save(eventEntity);
             bookingRepository.save(bookEvent);
-            mailService.sendBookingConfirmationMail(userEntity.getEmail(), eventEntity.getEvent_name(), eventEntity.getEvent_location(),eventEntity.getEvent_checkIn_time(), bookEvent.getNo_of_tickets(), bookEvent.getTotal_price(), bookEvent.getBooking_id(), eventEntity.getEvent_date(), eventEntity.getEvent_time());
+            mailService.sendBookingConfirmationMail(userEntity.getEmail(), eventEntity.getEvent_name(), eventEntity.getEvent_location(), eventEntity.getEvent_checkIn_time(), bookEvent.getNo_of_tickets(), bookEvent.getTotal_price(), bookEvent.getBooking_id(), eventEntity.getEvent_date(), eventEntity.getEvent_time());
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Booking successful");
             response.put("event_name", eventEntity.getEvent_name());
@@ -127,10 +133,11 @@ public class BookingService {
         }
     }
 
-    public Double getTicketPrice(int no_of_tickets,double event_price){
-        return no_of_tickets*event_price;
+    public Double getTicketPrice(int no_of_tickets, double event_price) {
+        return no_of_tickets * event_price;
     }
 
+    @Cacheable(value = "totalTickets", key = "#eventId") // Cache total tickets
     public ResponseEntity<?> getTotalTicketsBooked(Long eventId) {
         try {
             EventEntity event = eventRepository.findById(eventId)
@@ -152,6 +159,7 @@ public class BookingService {
         }
     }
 
+    @CacheEvict(value = "eventBookings", key = "#eventId") // Remove event bookings cache on cancellation
     public ResponseEntity<?> cancelBooking(Long bookingId, String token) {
         Long userId = jwtService.extractUserId(token);
         Optional<UserEntity> eventUser = userRepository.findById(userId);
@@ -187,19 +195,16 @@ public class BookingService {
         }
     }
 
-
-
-
     public ResponseEntity<?> getUserBookingHistory(Long userId) {
-       Optional<UserEntity> user= userRepository.findById(userId);
-       if(user.isEmpty()){
-           return new ResponseEntity<>("User does not exist", HttpStatus.BAD_REQUEST);
-       }
-       List<BookingHistoryEntity> bookings= bookingHistoryRepository.findBookingHistoryByUserId(userId);
-       if(bookings.isEmpty()){
-           return new ResponseEntity<>("No bookings found for this user", HttpStatus.NOT_FOUND);
-       }
-       return new ResponseEntity<>(bookings, HttpStatus.OK);
+        Optional<UserEntity> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            return new ResponseEntity<>("User does not exist", HttpStatus.BAD_REQUEST);
+        }
+        List<BookingHistoryEntity> bookings = bookingHistoryRepository.findBookingHistoryByUserId(userId);
+        if (bookings.isEmpty()) {
+            return new ResponseEntity<>("No bookings found for this user", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(bookings, HttpStatus.OK);
     }
 
 
@@ -238,9 +243,6 @@ public class BookingService {
                 UserEntity user = booking.getUser();
                 EventEntity event = booking.getEvent();
                 mailService.sendEventCancellationMail(user.getEmail(), event.getEvent_name(), event.getEvent_date());
-                System.out.println("Email sent to: " + user.getEmail());
-                System.out.println("Email name: " + event.getEvent_name());
-                System.out.println("Event date: " + event.getEvent_date());
             } catch (MessagingException e) {
                 failedEmails.add(booking.getUser().getEmail());
             }
