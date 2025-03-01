@@ -2,10 +2,7 @@ package com.events.application.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +15,7 @@ public class UserEntity {
     private String username;
     @JsonProperty
     @JsonSerialize
+    @Column(unique = true, nullable = false)
     private String email;
     private String password;
     private String phone;

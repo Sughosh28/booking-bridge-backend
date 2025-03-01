@@ -33,7 +33,6 @@ public class UserService {
         }
 
         UserEntity user = userRepository.findByUsername(username);
-        System.out.println(user.getOtp());
 
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");

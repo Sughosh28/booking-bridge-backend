@@ -42,7 +42,6 @@ public class RegistrationAndLoginService {
         }
         try {
             String encodedPassword = passwordEncoder.encode(user.getPassword());
-            System.out.println(encodedPassword);
             UserEntity newUser = new UserEntity();
             newUser.setUsername(user.getUsername());
             newUser.setEmail(user.getEmail());

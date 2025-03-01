@@ -61,7 +61,7 @@ public class EventController {
         return eventService.deleteEvent(authToken,event_id);
     }
 
-    @GetMapping("/bookings/{event_id}")
+    @GetMapping("/get-bookings/{event_id}")
     public ResponseEntity<?> getBookingsByEventId(@PathVariable Long event_id, @RequestHeader("Authorization") String token) {
         if(token==null || !token.startsWith("Bearer")){
             throw new RuntimeException("Invalid token");

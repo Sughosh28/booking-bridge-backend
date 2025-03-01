@@ -8,6 +8,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Entity
+
 public class EventEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -5,6 +5,9 @@ import com.events.application.repository.BookingRepository;
 import com.events.application.repository.EventRepository;
 import com.events.application.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,8 +31,9 @@ public class EventService {
     @Autowired
     private BookingRepository bookingRepository;
 
+    @CacheEvict(value = {"events", "eventsByLocation", "eventsByDate", "eventsByCategory"}, allEntries = true)
     public ResponseEntity<?> createEvent(String token, EventEntity events) {
-        if(token==null){
+        if (token == null) {
             return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
         }
         try {
@@ -47,57 +51,58 @@ public class EventService {
             eventEntity.setOrganizer_name(events.getOrganizer_name());
             eventEntity.setOrganizer_contact_details(events.getOrganizer_contact_details());
             eventEntity.setLanguage(events.getLanguage());
-            eventEntity.setEvent_checkIn_time( events.getEvent_time().minusMinutes(40));
+            eventEntity.setEvent_checkIn_time(events.getEvent_time().minusMinutes(40));
             eventRepository.save(eventEntity);
             return new ResponseEntity<>("Event created successfully", HttpStatus.CREATED);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>("Event creation failed", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    @Cacheable(value = "events")
     public ResponseEntity<?> getEvents(String token) {
-        if(token==null){
+        if (token == null) {
             return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
         }
-        List<EventEntity> events= eventRepository.findAll();
-        if(!events.isEmpty()) {
+        List<EventEntity> events = eventRepository.findAll();
+        if (!events.isEmpty()) {
             return new ResponseEntity<>(events, HttpStatus.OK);
         }
         return new ResponseEntity<>("There are no events", HttpStatus.BAD_REQUEST);
     }
 
+    @Cacheable(value = "eventsByLocation", key = "#location")
     public ResponseEntity<?> getEventsByLocation(String token, String location) {
-        if(token==null){
+        if (token == null) {
             return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
         }
-        List<EventEntity> events= eventRepository.findByEvent_locationContaining(location);
-        if(!events.isEmpty()) {
+        List<EventEntity> events = eventRepository.findByEvent_locationContaining(location);
+        if (!events.isEmpty()) {
             return new ResponseEntity<>(events, HttpStatus.OK);
         }
         return new ResponseEntity<>("There are no events", HttpStatus.BAD_REQUEST);
     }
 
 
+    @Cacheable(value = "eventsByDate", key = "#date")
     public ResponseEntity<?> getEventsByDate(String token, LocalDate date) {
-        if(token==null){
+        if (token == null) {
             return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
         }
-        List<EventEntity> events= eventRepository.findByEvent_date(date);
-        if(!events.isEmpty()) {
+        List<EventEntity> events = eventRepository.findByEvent_date(date);
+        if (!events.isEmpty()) {
             return new ResponseEntity<>(events, HttpStatus.OK);
         }
         return new ResponseEntity<>("There are no events", HttpStatus.BAD_REQUEST);
     }
 
-
-
+    @Cacheable(value = "eventsByCategory", key = "#category")
     public ResponseEntity<?> getEventsByCategory(String token, String category) {
-        if(token==null){
+        if (token == null) {
             return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
         }
-        List<EventEntity> events= eventRepository.findByEventCategory(category);
-        if(!events.isEmpty()) {
+        List<EventEntity> events = eventRepository.findByEventCategory(category);
+        if (!events.isEmpty()) {
             return new ResponseEntity<>(events, HttpStatus.OK);
         }
         return new ResponseEntity<>("There are no events", HttpStatus.BAD_REQUEST);
@@ -105,22 +110,23 @@ public class EventService {
 
 
     public ResponseEntity<?> getEventsByTime(String token, LocalTime time) {
-        if(token==null){
+        if (token == null) {
             return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
         }
-        List<EventEntity> events= eventRepository.findByEvent_time(time);
-        if(!events.isEmpty()) {
+        List<EventEntity> events = eventRepository.findByEvent_time(time);
+        if (!events.isEmpty()) {
             return new ResponseEntity<>(events, HttpStatus.OK);
         }
         return new ResponseEntity<>("There are no events", HttpStatus.BAD_REQUEST);
     }
 
-    public ResponseEntity<?> updateEvent(Long id, String token,EventEntity event) {
-        if(token==null){
+    @CachePut(value = "events", key = "#id")
+    public ResponseEntity<?> updateEvent(Long id, String token, EventEntity event) {
+        if (token == null) {
             return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
         }
-        Optional<EventEntity> eventEntity= eventRepository.findById(id);
-        if(eventEntity.isEmpty()){
+        Optional<EventEntity> eventEntity = eventRepository.findById(id);
+        if (eventEntity.isEmpty()) {
             return new ResponseEntity<>("Event not found", HttpStatus.BAD_REQUEST);
         }
         try {
@@ -140,20 +146,20 @@ public class EventService {
             updateEvent.setLanguage(event.getLanguage());
             eventRepository.save(updateEvent);
             return new ResponseEntity<>("Event updated successfully", HttpStatus.OK);
-        }
-        catch(Exception e){
-            return new ResponseEntity<>("Event updation failed "+e, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Event updation failed " + e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
 
+    @CacheEvict(value = {"events", "eventsByLocation", "eventsByDate", "eventsByCategory"}, allEntries = true)
     @Transactional
     public ResponseEntity<?> deleteEvent(String token, Long event_id) {
-        if(token==null){
+        if (token == null) {
             return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
         }
-        Optional<EventEntity> eventEntity= eventRepository.findById(event_id);
-        if(eventEntity.isEmpty()){
+        Optional<EventEntity> eventEntity = eventRepository.findById(event_id);
+        if (eventEntity.isEmpty()) {
             return new ResponseEntity<>("Event not found", HttpStatus.BAD_REQUEST);
         }
         try {
@@ -162,20 +168,18 @@ public class EventService {
 
 
             eventRepository.deleteById(event_id);
-            System.out.println("Mail sent successfully");
             return new ResponseEntity<>("Event deleted successfully", HttpStatus.OK);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>("Event deletion failed", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-
+    @Cacheable(value = "eventSearch", key = "#keyword")
     public ResponseEntity<List<EventEntity>> searchEvents(String keyword) {
-        if(keyword!=null && !keyword.isEmpty()){
-            return new ResponseEntity<>( eventRepository.searchEvents(keyword), HttpStatus.OK);
+        if (keyword != null && !keyword.isEmpty()) {
+            return new ResponseEntity<>(eventRepository.searchEvents(keyword), HttpStatus.OK);
         }
-        return new ResponseEntity<>( eventRepository.findAll(), HttpStatus.OK);
+        return new ResponseEntity<>(eventRepository.findAll(), HttpStatus.OK);
     }
 
     public ResponseEntity<?> getTotalEvents() {
@@ -189,16 +193,17 @@ public class EventService {
 
     public ResponseEntity<?> getUpcomingEvents() {
         List<EventEntity> upcomingEvents = eventRepository.findUpcomingEvents();
-        if(upcomingEvents.isEmpty()) {
+        if (upcomingEvents.isEmpty()) {
             return new ResponseEntity<>("No upcoming events found", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(upcomingEvents, HttpStatus.OK);
     }
 
     public ResponseEntity<?> pushMailNotification(Long eventId) {
-        List<String> mails= userRepository.findAllMails();
-        EventEntity eventEntity=eventRepository.findById(eventId).orElseThrow(() ->
-                new RuntimeException("Event does not exist"));;
+        List<String> mails = userRepository.findAllMails();
+        EventEntity eventEntity = eventRepository.findById(eventId).orElseThrow(() ->
+                new RuntimeException("Event does not exist"));
+        ;
         mailService.pushNotification(mails, eventEntity);
         return new ResponseEntity<>("Done", HttpStatus.OK);
 

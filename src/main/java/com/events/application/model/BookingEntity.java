@@ -12,9 +12,10 @@ public class BookingEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long booking_id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "event_id", referencedColumnName = "id")
     private EventEntity event;
+
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

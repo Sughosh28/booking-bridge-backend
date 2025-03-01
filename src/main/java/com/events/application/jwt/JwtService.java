@@ -63,7 +63,6 @@ public class JwtService {
     public String extractEmail(String jwt) {
         Claims claims = getClaims(jwt);
         String email = claims.get("email", String.class);
-        System.out.println(email);
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("Email not found in JWT claims");
         }
