@@ -50,7 +50,7 @@ public class SpringConfig implements WebMvcConfigurer {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(registry->{
-                    registry.requestMatchers("/","/register","/v3/api-docs/**","/swagger-ui/**", "/loginUser" ).permitAll();
+                    registry.requestMatchers("/","/register","/v3/api-docs/**","/swagger-ui/**", "/loginUser").permitAll();
                     registry.requestMatchers("/api/organizer/**").hasRole("ORGANIZER");
                     registry.requestMatchers("/api/bookEvents/**").hasRole("USER");
                     registry.requestMatchers("/api/users/**").hasRole("USER");
