@@ -12,7 +12,6 @@ import java.time.LocalTime;
 import java.util.List;
 
 @RestController
-
 public class EventUserController {
     @Autowired
     private EventService eventService;
