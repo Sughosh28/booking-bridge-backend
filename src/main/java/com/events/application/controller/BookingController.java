@@ -33,7 +33,9 @@ public class BookingController {
         if(token==null || !token.startsWith("Bearer")){
             throw new RuntimeException("Invalid token");
         }
-        return bookingService.getAllBookings();
+        String cleanToken = token.substring(7).trim();
+        Long userId = jwtService.extractUserId(cleanToken);
+        return bookingService.getAllBookingsByUser(userId);
     }
 
     @DeleteMapping("/bookings/{booking_id}/cancel")
