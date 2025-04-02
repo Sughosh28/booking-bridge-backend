@@ -160,6 +160,7 @@ public class BookingService {
         }
     }
 
+    @CacheEvict(value = "eventBookings", key = "#eventId") // Remove event bookings cache on cancellation
     public ResponseEntity<?> cancelBooking(Long bookingId, String token) {
         Long userId = jwtService.extractUserId(token);
         Optional<UserEntity> eventUser = userRepository.findById(userId);
